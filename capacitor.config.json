@@ -1,0 +1,10 @@
+{
+  "appId": "by.gomel.nightchess.pro",
+  "appName": "Ночные Шахматы Pro",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#090d16"
+  }
+}

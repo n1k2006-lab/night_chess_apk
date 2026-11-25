@@ -1,0 +1,16 @@
+{
+  "name": "night-chess-pro",
+  "version": "1.0.0",
+  "description": "Ночные Шахматы Pro — офлайн и онлайн тренажёр с Stockfish",
+  "private": true,
+  "scripts": {
+    "cap:sync": "npx cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^6.1.2",
+    "@capacitor/core": "^6.1.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^6.1.2"
+  }
+}
