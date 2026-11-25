@@ -479,6 +479,23 @@
                     </div>
                 </div>
 
+                <!-- Контроль времени и часы -->
+                <div>
+                    <div class="flex items-center justify-between mb-1.5">
+                        <label class="text-xs font-medium text-slate-400">Контроль времени</label>
+                        <div class="flex items-center gap-2 text-xs font-mono font-bold">
+                            <span id="clock-ai-badge" class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-slate-300">ИИ: ∞</span>
+                            <span id="clock-player-badge" class="px-2 py-0.5 rounded bg-slate-950 border border-slate-800 text-emerald-300">ВЫ: ∞</span>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-4 gap-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+                        <button type="button" data-tc="none" class="tc-btn py-1.5 px-1 rounded-lg text-[11px] font-semibold transition bg-emerald-600 text-white shadow">Без часов</button>
+                        <button type="button" data-tc="3+2" class="tc-btn py-1.5 px-1 rounded-lg text-[11px] font-semibold transition text-slate-400 hover:text-slate-200">3+2</button>
+                        <button type="button" data-tc="5+3" class="tc-btn py-1.5 px-1 rounded-lg text-[11px] font-semibold transition text-slate-400 hover:text-slate-200">5+3</button>
+                        <button type="button" data-tc="10+0" class="tc-btn py-1.5 px-1 rounded-lg text-[11px] font-semibold transition text-slate-400 hover:text-slate-200">10+0</button>
+                    </div>
+                </div>
+
                 <!-- Новая партия и Отмена -->
                 <div class="grid grid-cols-2 gap-2">
                     <button type="button" id="new-game-btn" class="py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-xs sm:text-sm font-semibold shadow-md transition">
@@ -486,6 +503,16 @@
                     </button>
                     <button type="button" id="undo-btn" class="py-2.5 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none text-slate-100 text-xs sm:text-sm font-semibold border border-slate-700 transition">
                         ↩ Отменить ход
+                    </button>
+                </div>
+
+                <!-- Сдаться и Ничья -->
+                <div class="grid grid-cols-2 gap-2">
+                    <button type="button" id="resign-btn" class="py-1.5 px-2.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 text-xs font-semibold transition active:scale-95">
+                        🏳 Сдаться
+                    </button>
+                    <button type="button" id="offer-draw-btn" class="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition active:scale-95">
+                        ½ Ничья
                     </button>
                 </div>
 
@@ -662,6 +689,23 @@
                     <button type="button" id="exam-start-btn" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 active:scale-[0.98] text-white text-sm font-bold shadow-lg transition">
                         Начать экзамен
                     </button>
+
+                    <div class="pt-2 border-t border-slate-800/90 flex flex-col gap-1.5">
+                        <div class="flex items-center justify-between text-[11px] text-slate-400">
+                            <span>Резервная копия прогресса (JSON)</span>
+                            <span id="progress-io-status" class="text-emerald-400 font-medium"></span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button type="button" id="export-progress-btn" class="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition">
+                                ⬇ Экспорт прогресса
+                            </button>
+                            <button type="button" id="import-progress-btn" class="py-1.5 px-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold transition">
+                                ⬆ Импорт прогресса
+                            </button>
+                        </div>
+                        <textarea id="progress-json-box" rows="2" spellcheck="false" placeholder="Нажмите «Экспорт прогресса» или вставьте сюда сохранённый JSON..."
+                                  class="w-full rounded-xl bg-slate-950 border border-slate-800 focus:border-emerald-500 focus:outline-none p-2 text-[11px] font-mono text-slate-200 placeholder-slate-500 resize-none"></textarea>
+                    </div>
                 </div>
 
                 <!-- Экран активного вопроса экзамена -->
@@ -819,10 +863,13 @@
                         </div>
                     </div>
 
-                    <!-- Детали выбранного хода -->
-                    <div id="rev-move-detail" class="rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-xs flex flex-col gap-1">
+                    <!-- Детали выбранного хода и главная линия PV -->
+                    <div id="rev-move-detail" class="rounded-xl bg-slate-950 border border-slate-800 p-2.5 text-xs flex flex-col gap-1.5">
                         <span class="text-slate-400">Выберите ход на графике или в списке ниже.</span>
                     </div>
+                    <button type="button" id="rev-play-best-btn" class="hidden w-full py-2 px-3 rounded-xl bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-200 border border-emerald-500/40 text-xs font-semibold transition">
+                        ♟ Доиграть эту позицию против ИИ
+                    </button>
 
                     <!-- Аннотированный список ходов -->
                     <div id="rev-annotated-list" class="flex flex-wrap gap-1.5 max-h-[210px] overflow-y-auto thin-scroll pr-1"></div>
@@ -5193,6 +5240,7 @@ class StockfishUciAdapter {
         this.latestEvalCp = null;
         this.latestMate = null;
         this.latestPvMove = null;
+        this.latestPvLine = [];
         this.initPromise = this.initWorker();
     }
 
@@ -5319,7 +5367,7 @@ class StockfishUciAdapter {
         if (line.startsWith('info ')) {
             const cpMatch = line.match(/\bscore\s+cp\s+(-?\d+)/);
             const mateMatch = line.match(/\bscore\s+mate\s+(-?\d+)/);
-            const pvMatch = line.match(/\bpv\s+([a-h][1-8][a-h][1-8][qrbn]?)/);
+            const pvMatch = line.match(/\bpv\s+([a-h][1-8][a-h][1-8][qrbn]?(?:\s+[a-h][1-8][a-h][1-8][qrbn]?)*)/);
 
             if (mateMatch) {
                 this.latestMate = Number(mateMatch[1]);
@@ -5329,7 +5377,9 @@ class StockfishUciAdapter {
                 this.latestMate = null;
             }
             if (pvMatch) {
-                this.latestPvMove = pvMatch[1];
+                const pvList = pvMatch[1].trim().split(/\s+/).slice(0, 6);
+                this.latestPvLine = pvList;
+                this.latestPvMove = pvList[0] || null;
             }
             return;
         }
@@ -5412,6 +5462,7 @@ class StockfishUciAdapter {
         this.latestEvalCp = null;
         this.latestMate = null;
         this.latestPvMove = null;
+        this.latestPvLine = [];
         this.isSearching = true;
         this.configureSkill(difficulty);
 
@@ -5454,7 +5505,7 @@ class StockfishUciAdapter {
             evalWhiteCp = this.fallbackAi.evaluateBoard(this.engine.board, 'w');
         }
 
-        return { move: chosenMove, evalWhiteCp, engineSource: 'stockfish' };
+        return { move: chosenMove, pvLine: [...(this.latestPvLine || [])], evalWhiteCp, engineSource: 'stockfish' };
     }
 }
 
@@ -5573,6 +5624,13 @@ class ChessProApp {
         this.fenModalEl = document.getElementById('fen-modal');
 
         document.getElementById('header-subtitle').textContent = `4 уровня ИИ · ${this.validLessons.length} партий и линий · Экзамен · Разбор`;
+
+        this.timeControl = 'none';
+        this.whiteTimeMs = 0;
+        this.blackTimeMs = 0;
+        this.clockInterval = null;
+        this.lastClockTick = 0;
+        this.manualGameOver = null;
 
         this.initBoardThemeSwatches();
         this.applyBoardTheme(this.boardTheme);
@@ -5775,7 +5833,17 @@ class ChessProApp {
                 this.boardFlipped = (this.playerColor === 'b');
                 this.gameEndedRecorded = false;
                 this.updatePlayerLabels();
-                this.renderAll();
+                if (this.mode === 'play' && !result.isGameOver && this.timeControl !== 'none') {
+            const incMap = { '3+2': 2000, '5+3': 3000, '10+0': 0 };
+            const inc = incMap[this.timeControl] || 0;
+            if (inc > 0) {
+                if (move.piece[0] === 'w') this.whiteTimeMs += inc;
+                else this.blackTimeMs += inc;
+            }
+            this.lastClockTick = Date.now();
+            this.renderClocks();
+        }
+        this.renderAll();
                 if (!this.engine.getGameStatus().over && this.engine.turn !== this.playerColor) {
                     this.triggerAiTurn();
                 }
@@ -6024,6 +6092,33 @@ class ChessProApp {
         document.getElementById('rev-load-pgn-btn').addEventListener('click', () => this.loadAndAnalyzePGN());
         document.getElementById('rev-load-sample-btn').addEventListener('click', () => this.loadSamplePGN());
         document.getElementById('rev-export-pgn-btn').addEventListener('click', () => this.exportCurrentPGN());
+
+        document.querySelectorAll('.tc-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                this.timeControl = btn.dataset.tc;
+                document.querySelectorAll('.tc-btn').forEach(b => {
+                    const active = b.dataset.tc === this.timeControl;
+                    b.className = active
+                        ? 'tc-btn py-1.5 px-1 rounded-lg text-[11px] font-semibold transition bg-emerald-600 text-white shadow'
+                        : 'tc-btn py-1.5 px-1 rounded-lg text-[11px] font-semibold transition text-slate-400 hover:text-slate-200';
+                });
+                this.startNewGame();
+            });
+        });
+
+        document.getElementById('resign-btn').addEventListener('click', () => this.handleResign());
+        document.getElementById('offer-draw-btn').addEventListener('click', () => this.handleOfferDraw());
+
+        document.getElementById('export-progress-btn').addEventListener('click', () => this.exportProgressJson());
+        document.getElementById('import-progress-btn').addEventListener('click', () => this.importProgressJson());
+
+        document.getElementById('rev-play-best-btn').addEventListener('click', () => {
+            const { state } = this.getDisplayedState();
+            this.engine.restoreState(state);
+            this.engine.history = this.engine.history.slice(0, this.isViewingHistory() ? this.viewPly : this.engine.history.length);
+            this.engine.moveList = this.engine.history.map(h => h.san);
+            this.switchMode('play', { keepPosition: true, side: this.engine.turn });
+        });
     }
 
     /* ========================================================================
@@ -6081,8 +6176,161 @@ class ChessProApp {
         this.updatePlayerLabels();
         this.renderAll();
 
+        this.manualGameOver = null;
+        this.setupClocksForNewGame();
+        this.renderClocks();
+
         if (this.playerColor === 'b') {
             this.triggerAiTurn();
+        }
+        this.startClockLoop();
+    }
+
+    setupClocksForNewGame() {
+        this.stopClockLoop();
+        const minsMap = { '3+2': 3 * 60000, '5+3': 5 * 60000, '10+0': 10 * 60000 };
+        const baseMs = minsMap[this.timeControl] || 0;
+        this.whiteTimeMs = baseMs;
+        this.blackTimeMs = baseMs;
+        this.lastClockTick = Date.now();
+    }
+
+    stopClockLoop() {
+        if (this.clockInterval !== null) {
+            clearInterval(this.clockInterval);
+            this.clockInterval = null;
+        }
+    }
+
+    startClockLoop() {
+        this.stopClockLoop();
+        if (this.timeControl === 'none' || this.mode !== 'play') return;
+        this.lastClockTick = Date.now();
+        this.clockInterval = setInterval(() => {
+            if (this.mode !== 'play' || this.manualGameOver || this.engine.getGameStatus().over) return;
+            const now = Date.now();
+            const dt = now - this.lastClockTick;
+            this.lastClockTick = now;
+            if (this.engine.turn === 'w') this.whiteTimeMs = Math.max(0, this.whiteTimeMs - dt);
+            else this.blackTimeMs = Math.max(0, this.blackTimeMs - dt);
+            this.renderClocks();
+
+            if (this.whiteTimeMs <= 0 || this.blackTimeMs <= 0) {
+                const loser = this.whiteTimeMs <= 0 ? 'w' : 'b';
+                const winner = loser === 'w' ? 'b' : 'w';
+                this.manualGameOver = { over: true, type: 'timeout', winner, inCheck: false };
+                this.stopClockLoop();
+                if (!this.gameEndedRecorded) {
+                    this.gameEndedRecorded = true;
+                    if (winner === this.playerColor) this.stats.w++;
+                    else this.stats.l++;
+                    localStorage.setItem('chess_stats', JSON.stringify(this.stats));
+                    this.updateScoreBadge();
+                }
+                this.updateStatusBanner();
+            }
+        }, 150);
+    }
+
+    formatClock(ms) {
+        if (this.timeControl === 'none') return '∞';
+        const totalSec = Math.ceil(ms / 1000);
+        const m = Math.floor(totalSec / 60);
+        const s = totalSec % 60;
+        return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    renderClocks() {
+        const aiEl = document.getElementById('clock-ai-badge');
+        const plEl = document.getElementById('clock-player-badge');
+        if (!aiEl || !plEl) return;
+        const aiMs = this.playerColor === 'w' ? this.blackTimeMs : this.whiteTimeMs;
+        const plMs = this.playerColor === 'w' ? this.whiteTimeMs : this.blackTimeMs;
+        aiEl.textContent = `ИИ: ${this.formatClock(aiMs)}`;
+        plEl.textContent = `ВЫ: ${this.formatClock(plMs)}`;
+    }
+
+    handleResign() {
+        if (this.mode !== 'play' || this.manualGameOver || this.engine.getGameStatus().over) return;
+        this.cancelTimers();
+        this.stopClockLoop();
+        const winner = this.playerColor === 'w' ? 'b' : 'w';
+        this.manualGameOver = { over: true, type: 'resign', winner, inCheck: false };
+        if (!this.gameEndedRecorded) {
+            this.gameEndedRecorded = true;
+            this.stats.l++;
+            localStorage.setItem('chess_stats', JSON.stringify(this.stats));
+            this.updateScoreBadge();
+        }
+        this.updateStatusBanner();
+    }
+
+    handleOfferDraw() {
+        if (this.mode !== 'play' || this.manualGameOver || this.engine.getGameStatus().over) return;
+        const evalCp = this.ai.evaluateBoard(this.engine.board, this.playerColor);
+        if (Math.abs(evalCp) <= 180 || this.engine.history.length >= 20) {
+            this.cancelTimers();
+            this.stopClockLoop();
+            this.manualGameOver = { over: true, type: 'draw_agreed', winner: null, inCheck: false };
+            if (!this.gameEndedRecorded) {
+                this.gameEndedRecorded = true;
+                this.stats.d++;
+                localStorage.setItem('chess_stats', JSON.stringify(this.stats));
+                this.updateScoreBadge();
+            }
+            this.updateStatusBanner();
+        } else {
+            this.statusTextEl.textContent = 'ИИ отклонил ничью (позиция не равная)';
+        }
+    }
+
+    exportProgressJson() {
+        const payload = {
+            version: 1,
+            stats: this.stats,
+            completedLessons: [...this.completedLessons],
+            weakLines: [...this.weakLines],
+            difficulty: this.difficulty,
+            boardTheme: this.boardTheme,
+            pieceStyle: this.pieceStyle
+        };
+        const box = document.getElementById('progress-json-box');
+        const st = document.getElementById('progress-io-status');
+        box.value = JSON.stringify(payload);
+        box.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        if (st) st.textContent = '✓ Скопировано';
+    }
+
+    importProgressJson() {
+        const box = document.getElementById('progress-json-box');
+        const st = document.getElementById('progress-io-status');
+        try {
+            const data = JSON.parse(box.value.trim());
+            if (data.stats && typeof data.stats.w === 'number') {
+                this.stats = { w: data.stats.w, d: data.stats.d || 0, l: data.stats.l || 0 };
+                localStorage.setItem('chess_stats', JSON.stringify(this.stats));
+                this.updateScoreBadge();
+            }
+            if (Array.isArray(data.completedLessons)) {
+                this.completedLessons = new Set(data.completedLessons);
+                localStorage.setItem('chess_completed_lessons', JSON.stringify([...this.completedLessons]));
+            }
+            if (Array.isArray(data.weakLines)) {
+                this.weakLines = new Set(data.weakLines);
+                this.saveWeakLines();
+            }
+            this.updateTrainerMasteryUI();
+            this.renderLessonList();
+            if (st) {
+                st.textContent = '✓ Загружено';
+                st.className = 'text-emerald-400 font-medium';
+            }
+        } catch (e) {
+            if (st) {
+                st.textContent = '✕ Ошибка JSON';
+                st.className = 'text-rose-400 font-medium';
+            }
         }
     }
 
@@ -7123,6 +7371,7 @@ class ChessProApp {
                 san: entry.san,
                 bestSan,
                 bestMove: bestMoveBefore,
+                pvLine: (this.sfEngine && this.sfEngine.ready && sfBefore && Array.isArray(sfBefore.pvLine)) ? sfBefore.pvLine : [],
                 actualMove: entry.move,
                 cpLoss,
                 evalWhiteCp,
@@ -7295,6 +7544,10 @@ class ChessProApp {
             : ((p.evalWhiteCp >= 0 ? '+' : '') + (p.evalWhiteCp / 100).toFixed(1));
 
         const detailEl = document.getElementById('rev-move-detail');
+        const pvText = (p.pvLine && p.pvLine.length > 0) ? p.pvLine.join(' ') : p.bestSan;
+        const playBestBtn = document.getElementById('rev-play-best-btn');
+        if (playBestBtn) playBestBtn.classList.remove('hidden');
+
         detailEl.innerHTML = `
             <div class="flex items-center justify-between">
                 <span class="font-bold text-slate-100">${sideLabel} ${p.san} — <span class="text-emerald-400">${p.label} (${p.symbol})</span></span>
@@ -7303,7 +7556,10 @@ class ChessProApp {
             <div class="text-slate-400">
                 ${p.badge === 'best'
                     ? '✓ Сыгран сильнейший ход в позиции.'
-                    : `Лучший ход по движку: <strong class="text-emerald-300 font-mono">${p.bestSan}</strong> (потеря ${(p.cpLoss / 100).toFixed(2)} пешки)`}
+                    : `Лучший ход: <strong class="text-emerald-300 font-mono">${p.bestSan}</strong> (потеря ${(p.cpLoss / 100).toFixed(2)} пешки)`}
+            </div>
+            <div class="text-[11px] text-slate-400 font-mono truncate">
+                Линия (PV): <span class="text-sky-300">${pvText}</span>
             </div>
         `;
     }
@@ -7580,6 +7836,20 @@ class ChessProApp {
     }
 
     updateStatusBanner() {
+        if (this.mode === 'play' && this.manualGameOver) {
+            if (this.manualGameOver.type === 'resign') {
+                this.statusTextEl.textContent = 'Вы сдались — победа ИИ';
+                return;
+            }
+            if (this.manualGameOver.type === 'draw_agreed') {
+                this.statusTextEl.textContent = 'Ничья по соглашению';
+                return;
+            }
+            if (this.manualGameOver.type === 'timeout') {
+                this.statusTextEl.textContent = this.manualGameOver.winner === this.playerColor ? 'Время ИИ вышло — победа!' : 'Ваше время вышло — поражение';
+                return;
+            }
+        }
         if (this.isViewingHistory()) {
             const total = this.engine.history.length;
             this.statusTextEl.textContent = `История: ход ${this.viewPly} / ${total}`;
