@@ -31,10 +31,8 @@ jobs:
           log-accepted-android-sdk-licenses: true
           packages: platform-tools
 
-      - name: Install Capacitor & Assets Generator
-        run: |
-          npm install
-          npm install -D @capacitor/assets
+      - name: Install Capacitor dependencies
+        run: npm install
 
       - name: Download Stockfish.js for offline APK
         run: |
@@ -47,12 +45,6 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
-
-      - name: Generate Chess Launcher Icons for Android
-        run: |
-          if [ -f "assets/icon.png" ]; then
-            npx capacitor-assets generate --android --iconBackgroundColor '#090d16' --iconBackgroundColorDark '#090d16' --splashBackgroundColor '#090d16' --splashBackgroundColorDark '#090d16'
-          fi
 
       - name: Allow cleartext in AndroidManifest
         run: |
