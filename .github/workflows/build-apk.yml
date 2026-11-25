@@ -25,12 +25,18 @@ jobs:
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: '20.0'
+          accept-android-sdk-licenses: true
+          log-accepted-android-sdk-licenses: true
+          packages: platform-tools
 
       - name: Install Capacitor dependencies
         run: npm install
 
       - name: Download Stockfish.js for offline APK
         run: |
+          mkdir -p www
           curl -L -f -o www/stockfish.js "https://cdnjs.cloudflare.com/ajax/libs/stockfish.js/10.0.2/stockfish.js" || \
           curl -L -f -o www/stockfish.js "https://cdn.jsdelivr.net/npm/stockfish.js@10.0.2/stockfish.js" || \
           echo "Stockfish download skipped, builtin engine will be used"
@@ -40,7 +46,7 @@ jobs:
           npx cap add android
           npx cap sync android
 
-      - name: Allow cleartext and optimize WebView in AndroidManifest
+      - name: Allow cleartext in AndroidManifest
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
           if [ -f "$MANIFEST" ]; then
