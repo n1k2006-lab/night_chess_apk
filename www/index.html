@@ -179,6 +179,45 @@
             z-index: 10;
         }
 
+
+        /* Анимации тем доски и ходов */
+        @keyframes themePulseEmerald {
+            0%, 100% { box-shadow: 0 22px 55px rgba(0, 0, 0, 0.84), 0 0 0 3px #10b981, 0 0 24px rgba(16, 185, 129, 0.25); }
+            50% { box-shadow: 0 22px 55px rgba(0, 0, 0, 0.84), 0 0 0 3px #34d399, 0 0 36px rgba(52, 211, 153, 0.45); }
+        }
+        @keyframes themeShiftAurora {
+            0% { filter: hue-rotate(0deg) saturate(1.12); }
+            50% { filter: hue-rotate(18deg) saturate(1.25); }
+            100% { filter: hue-rotate(0deg) saturate(1.12); }
+        }
+        @keyframes themeFloatEmbers {
+            0%, 100% { box-shadow: 0 22px 55px rgba(0, 0, 0, 0.84), 0 0 0 3px #d97706, 0 0 26px rgba(245, 158, 11, 0.28); }
+            50% { box-shadow: 0 22px 55px rgba(0, 0, 0, 0.84), 0 0 0 3px #fbbf24, 0 0 38px rgba(251, 191, 36, 0.48); }
+        }
+        @keyframes squareRipple {
+            0% { transform: scale(0.88); opacity: 0.9; }
+            100% { transform: scale(1.06); opacity: 0; }
+        }
+        .board-anim-pulse {
+            animation: themePulseEmerald 3.2s ease-in-out infinite;
+        }
+        .board-anim-aurora .board-grid {
+            animation: themeShiftAurora 6s ease-in-out infinite;
+        }
+        .board-anim-embers {
+            animation: themeFloatEmbers 2.8s ease-in-out infinite;
+        }
+        .sq-anim-ring::after {
+            content: '';
+            position: absolute;
+            inset: 14%;
+            border-radius: 50%;
+            border: 2px solid rgba(52, 211, 153, 0.65);
+            pointer-events: none;
+            z-index: 4;
+            animation: squareRipple 0.55s ease-out forwards;
+        }
+
         /* Скроллбары */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -468,7 +507,7 @@
                 <!-- 5 тем доски -->
                 <div>
                     <div class="flex items-center justify-between mb-1.5">
-                        <label class="text-xs font-medium text-slate-400">Вид доски (5 тем)</label>
+                        <label class="text-xs font-medium text-slate-400">Вид доски (7 тем)</label>
                         <span id="board-theme-name" class="text-[11px] font-medium text-slate-300">Классическое дерево</span>
                     </div>
                     <div id="board-theme-selector" class="grid grid-cols-5 gap-2"></div>
@@ -842,35 +881,63 @@ const BOARD_THEMES = {
         light: '#e8cfa6',
         dark: '#9c6644',
         coordOnLight: '#784824',
-        coordOnDark: '#f5e4c8'
+        coordOnDark: '#f5e4c8',
+        soundPreset: 'wood',
+        animClass: ''
     },
     tournament_green: {
         name: 'Турнирный зелёный',
         light: '#eeeed2',
         dark: '#769656',
         coordOnLight: '#557039',
-        coordOnDark: '#f4f4de'
+        coordOnDark: '#f4f4de',
+        soundPreset: 'classic',
+        animClass: ''
     },
     sea_slate: {
         name: 'Морской сланец',
         light: '#cbd5e1',
         dark: '#475569',
         coordOnLight: '#334155',
-        coordOnDark: '#f1f5f9'
+        coordOnDark: '#f1f5f9',
+        soundPreset: 'glass',
+        animClass: 'board-anim-aurora'
     },
     dark_walnut: {
         name: 'Тёмный орех',
         light: '#b58863',
         dark: '#5c3a21',
         coordOnLight: '#3e2412',
-        coordOnDark: '#e6ccb2'
+        coordOnDark: '#e6ccb2',
+        soundPreset: 'wood',
+        animClass: 'board-anim-embers'
     },
     marble_graphite: {
         name: 'Мрамор и графит',
         light: '#d1d5db',
         dark: '#374151',
         coordOnLight: '#1f2937',
-        coordOnDark: '#f3f4f6'
+        coordOnDark: '#f3f4f6',
+        soundPreset: 'glass',
+        animClass: ''
+    },
+    night_emerald: {
+        name: 'Ночной изумруд (Анимация)',
+        light: '#34d399',
+        dark: '#064e3b',
+        coordOnLight: '#022c22',
+        coordOnDark: '#a7f3d0',
+        soundPreset: 'synth',
+        animClass: 'board-anim-pulse'
+    },
+    royal_amber: {
+        name: 'Золотые угли (Анимация)',
+        light: '#fcd34d',
+        dark: '#78350f',
+        coordOnLight: '#451a03',
+        coordOnDark: '#fef3c7',
+        soundPreset: 'wood',
+        animClass: 'board-anim-embers'
     }
 };
 
@@ -4069,8 +4136,13 @@ class SoundEngine {
         this.tone(784, 784, 0.28, 'triangle', 0.52, 0.22);
     }
 
+    setThemePreset(preset) {
+        this.themePreset = preset || 'wood';
+    }
+
     playEvent({ isCapture = false, isCheck = false, isCastling = false, isPromotion = false, gameOverType = null, playerWon = false }) {
         if (this.muted || this.volumeLevel <= 0) return;
+        const preset = this.themePreset || 'wood';
 
         if (gameOverType) {
             if (gameOverType === 'checkmate') {
@@ -4089,21 +4161,24 @@ class SoundEngine {
             return;
         }
 
+        const wave = preset === 'glass' ? 'sine' : (preset === 'synth' ? 'sawtooth' : 'triangle');
+        const pitchMult = preset === 'glass' ? 1.35 : (preset === 'synth' ? 1.15 : 1.0);
+
         if (isPromotion) {
-            this.tone(392, 523, 0.13, 'triangle', 0.48, 0);
-            this.tone(587, 784, 0.19, 'triangle', 0.46, 0.08);
+            this.tone(392 * pitchMult, 523 * pitchMult, 0.13, wave, 0.48, 0);
+            this.tone(587 * pitchMult, 784 * pitchMult, 0.19, wave, 0.46, 0.08);
         } else if (isCastling) {
-            this.tone(195, 68, 0.085, 'triangle', 0.50, 0);
-            this.tone(235, 78, 0.09, 'triangle', 0.48, 0.085);
+            this.tone(195 * pitchMult, 68 * pitchMult, 0.085, wave, 0.50, 0);
+            this.tone(235 * pitchMult, 78 * pitchMult, 0.09, wave, 0.48, 0.085);
         } else if (isCapture) {
-            this.tone(250, 62, 0.105, 'triangle', 0.58, 0);
-            this.tone(155, 50, 0.08, 'sine', 0.44, 0.02);
+            this.tone(260 * pitchMult, 64 * pitchMult, 0.105, wave, 0.58, 0);
+            this.tone(155 * pitchMult, 50 * pitchMult, 0.08, 'sine', 0.44, 0.02);
         } else {
-            this.tone(190, 58, 0.09, 'triangle', 0.48, 0);
+            this.tone(190 * pitchMult, 58 * pitchMult, 0.09, wave, 0.48, 0);
         }
 
         if (isCheck) {
-            this.tone(760, 470, 0.19, 'triangle', 0.44, 0.05);
+            this.tone(760 * pitchMult, 470 * pitchMult, 0.19, wave, 0.44, 0.05);
         }
     }
 }
@@ -5604,6 +5679,14 @@ class ChessProApp {
         root.style.setProperty('--coord-on-dark', theme.coordOnDark);
 
         document.getElementById('board-theme-name').textContent = theme.name;
+        if (typeof sound !== 'undefined' && sound.setThemePreset) {
+            sound.setThemePreset(theme.soundPreset || 'wood');
+        }
+        const wrapper = document.querySelector('.board-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('board-anim-pulse', 'board-anim-aurora', 'board-anim-embers');
+            if (theme.animClass) wrapper.classList.add(theme.animClass);
+        }
 
         document.querySelectorAll('.theme-swatch').forEach(btn => {
             const active = btn.dataset.theme === themeKey;
