@@ -31,8 +31,10 @@ jobs:
           log-accepted-android-sdk-licenses: true
           packages: platform-tools
 
-      - name: Install Capacitor dependencies
-        run: npm install
+      - name: Install Capacitor & Assets Generator
+        run: |
+          npm install
+          npm install -D @capacitor/assets
 
       - name: Download Stockfish.js for offline APK
         run: |
@@ -45,6 +47,28 @@ jobs:
         run: |
           npx cap add android
           npx cap sync android
+
+      - name: Generate Chess Launcher Icons for Android
+        run: |
+          if [ -f "assets/icon.png" ]; then
+            npx capacitor-assets generate --android --iconBackgroundColor '#090d16' --iconBackgroundColorDark '#090d16' --splashBackgroundColor '#090d16' --splashBackgroundColorDark '#090d16' || true
+            python3 - << 'PYEOF'
+import os, shutil
+
+src = "assets/icon.png"
+res_root = "android/app/src/main/res"
+if os.path.exists(src) and os.path.isdir(res_root):
+    for d in os.listdir(res_root):
+        if d.startswith("mipmap-"):
+            target = os.path.join(res_root, d, "ic_launcher.png")
+            target_round = os.path.join(res_root, d, "ic_launcher_round.png")
+            target_fg = os.path.join(res_root, d, "ic_launcher_foreground.png")
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            shutil.copy2(src, target)
+            shutil.copy2(src, target_round)
+            shutil.copy2(src, target_fg)
+PYEOF
+          fi
 
       - name: Allow cleartext in AndroidManifest
         run: |
