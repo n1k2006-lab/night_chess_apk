@@ -5156,7 +5156,7 @@ class StockfishUciAdapter {
             const ok = await this.tryLoadWorker(url);
             if (ok) {
                 const isLocal = url.startsWith('./');
-                this.notifyStatus(isLocal ? 'Stockfish (локальный)' : 'Stockfish UCI (онлайн)', true);
+                this.notifyStatus(isLocal ? 'Stockfish 10 (встроен в APK)' : 'Stockfish UCI (онлайн)', true);
                 return true;
             }
         }
