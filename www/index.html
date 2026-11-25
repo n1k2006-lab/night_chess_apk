@@ -6119,6 +6119,10 @@ class ChessProApp {
             this.engine.moveList = this.engine.history.map(h => h.san);
             this.switchMode('play', { keepPosition: true, side: this.engine.turn });
         });
+        // Проверка наличия всех кнопок интерфейса
+        document.querySelectorAll('button').forEach((btn) => {
+            if (!btn.type) btn.type = 'button';
+        });
     }
 
     /* ========================================================================
@@ -7300,14 +7304,14 @@ class ChessProApp {
                     sideColor: moverColor,
                     legalMoves: legalBefore,
                     difficulty: 4,
-                    depth: 8,
+                    depth: 5,
                     useBook: false
                 });
                 if (currentRevSession !== this.reviewSessionId) return;
                 bestMoveBefore = sfBefore.move;
                 bestEvalMover = moverColor === 'w' ? sfBefore.evalWhiteCp : -sfBefore.evalWhiteCp;
             } else {
-                const beforeRes = tempAI.searchBestMoveWithScore(2, moverColor);
+                const beforeRes = tempAI.searchBestMoveWithScore(1, moverColor);
                 bestMoveBefore = beforeRes.move;
                 bestEvalMover = beforeRes.score;
             }
@@ -7334,14 +7338,14 @@ class ChessProApp {
                         sideColor: oppColor,
                         legalMoves: legalAfter,
                         difficulty: 4,
-                        depth: 8,
+                        depth: 5,
                         useBook: false
                     });
                     if (currentRevSession !== this.reviewSessionId) return;
                     const oppEval = oppColor === 'w' ? sfAfter.evalWhiteCp : -sfAfter.evalWhiteCp;
                     actualEvalMover = -oppEval;
                 } else {
-                    const afterRes = tempAI.searchBestMoveWithScore(2, oppColor);
+                    const afterRes = tempAI.searchBestMoveWithScore(1, oppColor);
                     actualEvalMover = -afterRes.score;
                 }
             }
@@ -7385,7 +7389,7 @@ class ChessProApp {
             progBar.style.width = `${pct}%`;
             progText.textContent = `${pct}%`;
 
-            setTimeout(processStep, 12);
+            setTimeout(processStep, 4);
         };
 
         setTimeout(processStep, 16);
