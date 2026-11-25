@@ -7298,16 +7298,22 @@ class ChessProApp {
             // 1. Лучший ход и оценка до хода (через Stockfish онлайн или встроенный ИИ офлайн)
             let bestMoveBefore = null;
             let bestEvalMover = 0;
+            let sfBefore = null;
             if (this.sfEngine && this.sfEngine.ready) {
-                const sfBefore = await this.sfEngine.searchMove({
-                    fen: tempEngine.toFEN(),
-                    sideColor: moverColor,
-                    legalMoves: legalBefore,
-                    difficulty: 4,
-                    depth: 5,
-                    useBook: false
-                });
-                if (currentRevSession !== this.reviewSessionId) return;
+                sfBefore = await Promise.race([
+                    this.sfEngine.searchMove({
+                        fen: tempEngine.toFEN(),
+                        sideColor: moverColor,
+                        legalMoves: legalBefore,
+                        difficulty: 2,
+                        movetime: 60,
+                        useBook: false
+                    }),
+                    new Promise(r => setTimeout(() => r(null), 450))
+                ]);
+            }
+            if (currentRevSession !== this.reviewSessionId) return;
+            if (sfBefore && sfBefore.move) {
                 bestMoveBefore = sfBefore.move;
                 bestEvalMover = moverColor === 'w' ? sfBefore.evalWhiteCp : -sfBefore.evalWhiteCp;
             } else {
@@ -7331,17 +7337,23 @@ class ChessProApp {
                 }
             } else {
                 const oppColor = moverColor === 'w' ? 'b' : 'w';
+                let sfAfter = null;
                 if (this.sfEngine && this.sfEngine.ready) {
                     const legalAfter = tempEngine.getLegalMoves(oppColor);
-                    const sfAfter = await this.sfEngine.searchMove({
-                        fen: tempEngine.toFEN(),
-                        sideColor: oppColor,
-                        legalMoves: legalAfter,
-                        difficulty: 4,
-                        depth: 5,
-                        useBook: false
-                    });
-                    if (currentRevSession !== this.reviewSessionId) return;
+                    sfAfter = await Promise.race([
+                        this.sfEngine.searchMove({
+                            fen: tempEngine.toFEN(),
+                            sideColor: oppColor,
+                            legalMoves: legalAfter,
+                            difficulty: 2,
+                            movetime: 60,
+                            useBook: false
+                        }),
+                        new Promise(r => setTimeout(() => r(null), 450))
+                    ]);
+                }
+                if (currentRevSession !== this.reviewSessionId) return;
+                if (sfAfter && typeof sfAfter.evalWhiteCp === 'number') {
                     const oppEval = oppColor === 'w' ? sfAfter.evalWhiteCp : -sfAfter.evalWhiteCp;
                     actualEvalMover = -oppEval;
                 } else {
