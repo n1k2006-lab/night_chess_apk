@@ -30,7 +30,7 @@ jobs:
           accept-android-sdk-licenses: true
           log-accepted-android-sdk-licenses: true
           packages: platform-tools
-
+          include-hidden-files: true
       - name: Install Capacitor & Assets Generator
         run: |
           npm install
