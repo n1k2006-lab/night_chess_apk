@@ -50,60 +50,30 @@ jobs:
 
       - name: Generate Chess Launcher Icons for Android
         run: |
-          pip install --quiet pillow || true
           if [ -f "assets/icon.png" ]; then
-            npx @capacitor/assets generate --android --iconBackgroundColor '#090d16' --iconBackgroundColorDark '#090d16' --splashBackgroundColor '#090d16' --splashBackgroundColorDark '#090d16' || true
+            npx capacitor-assets generate --android --iconBackgroundColor '#090d16' --iconBackgroundColorDark '#090d16' --splashBackgroundColor '#090d16' --splashBackgroundColorDark '#090d16' || true
             python3 - << 'PYEOF'
-          import os
-          from PIL import Image
+import os, shutil
 
-          src = "assets/icon.png"
-          res_root = "android/app/src/main/res"
-          if os.path.exists(src) and os.path.isdir(res_root):
-              base_img = Image.open(src).convert("RGBA")
-              sizes = {
-                  "mipmap-mdpi": 48,
-                  "mipmap-hdpi": 72,
-                  "mipmap-xhdpi": 96,
-                  "mipmap-xxhdpi": 144,
-                  "mipmap-xxxhdpi": 192
-              }
-              for folder, px in sizes.items():
-                  dpath = os.path.join(res_root, folder)
-                  os.makedirs(dpath, exist_ok=True)
-                  resized = base_img.resize((px, px), Image.LANCZOS)
-                  resized.save(os.path.join(dpath, "ic_launcher.png"), "PNG")
-                  resized.save(os.path.join(dpath, "ic_launcher_round.png"), "PNG")
-                  fg_size = int(px * 2.25)
-                  canvas = Image.new("RGBA", (fg_size, fg_size), (9, 13, 22, 255))
-                  inner = base_img.resize((int(fg_size * 0.68), int(fg_size * 0.68)), Image.LANCZOS)
-                  offset = (fg_size - inner.width) // 2
-                  canvas.paste(inner, (offset, offset), inner)
-                  canvas.save(os.path.join(dpath, "ic_launcher_foreground.png"), "PNG")
-
-              anydpi = os.path.join(res_root, "mipmap-anydpi-v26")
-              os.makedirs(anydpi, exist_ok=True)
-              values_dir = os.path.join(res_root, "values")
-              os.makedirs(values_dir, exist_ok=True)
-              with open(os.path.join(values_dir, "ic_launcher_background.xml"), "w", encoding="utf-8") as f:
-                  f.write('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#090D16</color>\n</resources>\n')
-              adaptive_xml = '''<?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@color/ic_launcher_background"/>
-              <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
-          </adaptive-icon>
-          '''
-              with open(os.path.join(anydpi, "ic_launcher.xml"), "w", encoding="utf-8") as f:
-                  f.write(adaptive_xml)
-              with open(os.path.join(anydpi, "ic_launcher_round.xml"), "w", encoding="utf-8") as f:
-                  f.write(adaptive_xml)
-          PYEOF
+src = "assets/icon.png"
+res_root = "android/app/src/main/res"
+if os.path.exists(src) and os.path.isdir(res_root):
+    for d in os.listdir(res_root):
+        if d.startswith("mipmap-"):
+            target = os.path.join(res_root, d, "ic_launcher.png")
+            target_round = os.path.join(res_root, d, "ic_launcher_round.png")
+            target_fg = os.path.join(res_root, d, "ic_launcher_foreground.png")
+            os.makedirs(os.path.dirname(target), exist_ok=True)
+            shutil.copy2(src, target)
+            shutil.copy2(src, target_round)
+            shutil.copy2(src, target_fg)
+PYEOF
           fi
 
       - name: Allow cleartext in AndroidManifest
         run: |
           MANIFEST="android/app/src/main/AndroidManifest.xml"
-          if [ -f "$MANIFEST" ] && ! grep -q "usesCleartextTraffic" "$MANIFEST"; then
+          if [ -f "$MANIFEST" ]; then
             sed -i 's/<application/<application android:usesCleartextTraffic="true"/g' "$MANIFEST"
           fi
 
