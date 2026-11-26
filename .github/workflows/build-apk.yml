@@ -87,12 +87,12 @@ if os.path.exists(src) and os.path.isdir(res_root):
     os.makedirs(values_dir, exist_ok=True)
     with open(os.path.join(values_dir, "ic_launcher_background.xml"), "w", encoding="utf-8") as f:
         f.write('<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#090D16</color>\n</resources>\n')
-    adaptive_xml = '''<?xml version="1.0" encoding="utf-8"?>
+    adaptive_xml = """<?xml version="1.0" encoding="utf-8"?>
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
     <background android:drawable="@color/ic_launcher_background"/>
     <foreground android:drawable="@mipmap/ic_launcher_foreground"/>
 </adaptive-icon>
-'''
+"""
     with open(os.path.join(anydpi, "ic_launcher.xml"), "w", encoding="utf-8") as f:
         f.write(adaptive_xml)
     with open(os.path.join(anydpi, "ic_launcher_round.xml"), "w", encoding="utf-8") as f:
